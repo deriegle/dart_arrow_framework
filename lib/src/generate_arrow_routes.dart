@@ -10,7 +10,7 @@ List<ArrowRoute> generateArrowRoutes(List<ClassMirror> controllers) {
         .firstWhere((meta) => meta.reflectee is Controller, orElse: () => null);
 
     if (routeMetadata != null) {
-      var basePathMirror = routeMetadata.getField(Symbol('basePath'));
+      var basePathMirror = routeMetadata.getField(#basePath);
       basePath = basePathMirror.reflectee;
     }
 
@@ -19,8 +19,8 @@ List<ArrowRoute> generateArrowRoutes(List<ClassMirror> controllers) {
           .firstWhere((m) => m.reflectee is Route, orElse: () => null);
 
       if (routeMetadata != null) {
-        var methodPathMirror = routeMetadata.getField(Symbol('path'));
-        var httpMethodMirror = routeMetadata.getField(Symbol('method'));
+        var methodPathMirror = routeMetadata.getField(#path);
+        var httpMethodMirror = routeMetadata.getField(#method);
         var httpMethod = httpMethodMirror.reflectee;
 
         // print('methodRoute: ${methodPathMirror.reflectee}');

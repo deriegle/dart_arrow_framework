@@ -33,15 +33,16 @@ class Router {
   }
 
   Future<void> serve(HttpRequest request, RouteMatch match) async {
-    var controller = match.route.classMirror.newInstance(Symbol(''), []);
-    var handler = controller.getField(match.route.methodMirror.simpleName);
-    var params = <dynamic>[];
-    var jsonBody = await parseBodyAsJson(request);
+    final controller = match.route.classMirror.newInstance(Symbol(''), []);
+    final handler = controller.getField(match.route.methodMirror.simpleName);
+    final params = <dynamic>[];
+    final jsonBody = await parseBodyAsJson(request);
 
     for (var param in match.route.methodMirror.parameters) {
-      var paramMetadata = param.metadata.firstWhere(
-          (el) => el.reflectee is Body || el.reflectee is Param,
-          orElse: () => null);
+      final paramMetadata = param.metadata.firstWhere(
+        (el) => el.reflectee is Body || el.reflectee is Param,
+        orElse: () => null,
+      );
 
       if (paramMetadata == null) {
         throw Exception(
@@ -49,7 +50,7 @@ class Router {
         );
       }
 
-      var paramType = param.type.reflectedType;
+      final paramType = param.type.reflectedType;
 
       // Using Body annotation
       if (paramMetadata.reflectee is Body) {
@@ -115,9 +116,16 @@ class Router {
     ]);
   }
 
-  void _addParam(List<dynamic> params, dynamic paramType, dynamic paramValue) {
-    // TODO: Check types before trying to parse and throw helpful error message
-    // TODO: Add custom type building using constructors with named params
+  void _addParam(List<dynamic> params, Type paramType, dynamic paramValue) {
+    const dartTypes = [String, dynamic, int, Map, double, List, Symbol];
+
+    if (!dartTypes.contains(paramType) && paramValue is Map) {
+      // Using custom class with named parameter constructor
+      // Initialize constructor and pass into parameters.
+      // Very likely to throw an error.
+      _addDynamicClassTypeToParams(params, paramType, paramValue);
+      return;
+    }
 
     switch (paramType) {
       case String:
@@ -129,9 +137,62 @@ class Router {
       case double:
         params.add(double.parse(paramValue));
         break;
+      case Symbol:
+        params.add(Symbol(paramValue.toString()));
+        break;
+      case List:
       default:
         params.add(paramValue);
     }
+  }
+
+  void _addDynamicClassTypeToParams(
+    List<dynamic> params,
+    Type paramType,
+    dynamic paramValue,
+  ) {
+    final reflectedClass = reflectClass(paramType);
+    final constructors = reflectedClass.declarations.values
+        .where(
+          (d) => d is MethodMirror && d.isConstructor,
+        )
+        .toList();
+
+    final MethodMirror constructor = constructors.firstWhere(
+        (c) =>
+            c is MethodMirror &&
+            c.parameters.isNotEmpty &&
+            !c.parameters.any((p) => !p.isNamed),
+        orElse: () => null);
+
+    if (constructor == null) {
+      throw Exception(
+        'You must provide a constructor that does not have positional arguments to parse',
+      );
+    }
+
+    final constructorParameters = <Symbol, dynamic>{};
+
+    for (var param in constructor.parameters) {
+      if (!paramValue.containsKey(param.simpleName) && !param.isOptional) {
+        throw Exception(
+          '${param.simpleName} is required to initalize ${paramType}',
+        );
+      }
+
+      constructorParameters[param.simpleName] =
+          paramValue[symbolToString(param.simpleName)];
+    }
+
+    final dynamicClass = reflectedClass
+        .newInstance(
+          constructor.constructorName,
+          [],
+          constructorParameters,
+        )
+        .reflectee;
+
+    params.add(dynamicClass);
   }
 
   Future<Map<String, dynamic>> parseBodyAsJson(HttpRequest request) async {
@@ -151,4 +212,9 @@ class Router {
 
     return null;
   }
+}
+
+String symbolToString(Symbol symbol) {
+  final newSymbol = symbol.toString().substring(8);
+  return newSymbol.substring(0, newSymbol.length - 2);
 }

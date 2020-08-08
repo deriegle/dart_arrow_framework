@@ -42,13 +42,7 @@ class SignupsController extends ArrowController {
   }
 
   @Route.post('/email/')
-  void emailSignup(
-      @Body('email') String email, @Body('password') String password) {
-    print('password, $password');
-    print(password is String);
-    print(password is List);
-    final user = User(id: 1, email: email, password: password);
-
+  void emailSignup(@Body('user') User user) {
     json({
       'user': user,
     });
