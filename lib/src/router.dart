@@ -13,8 +13,8 @@ class Router {
   Router() {
     final controllers = scanControllers();
 
-    print('controllers');
-    print(controllers);
+    // print('controllers');
+    // print(controllers);
 
     routes.addAll(generateArrowRoutes(controllers));
   }
@@ -63,14 +63,17 @@ class Router {
         final bodyParamIsRequired = body.getField(#required).reflectee as bool;
 
         if (jsonBody == null ||
-            bodyParamIsRequired && !jsonBody.containsKey(bodyParamName)) {
+            bodyParamIsRequired &&
+                bodyParamName != null &&
+                !jsonBody.containsKey(bodyParamName)) {
           request.response.statusCode = HttpStatus.badRequest;
           request.response.write('${bodyParamName} body param is required.');
           await request.response.close();
           return;
         }
 
-        var paramValue = jsonBody[bodyParamName];
+        var paramValue =
+            bodyParamName == null ? jsonBody : jsonBody[bodyParamName];
         var paramType = param.type.reflectedType;
 
         if (paramValue == null && bodyParamIsRequired) {

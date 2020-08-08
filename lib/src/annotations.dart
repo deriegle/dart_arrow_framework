@@ -20,7 +20,8 @@ class Route {
 }
 
 class Body {
-  const Body(this.paramName, {this.required = true});
+  const Body([this.paramName]) : required = true;
+  const Body.optional([this.paramName]) : required = false;
 
   final String paramName;
   final bool required;
@@ -28,6 +29,7 @@ class Body {
 
 class Param {
   const Param(this.paramName, {this.required = true});
+  const Param.optional([this.paramName]) : required = false;
 
   final String paramName;
   final bool required;
