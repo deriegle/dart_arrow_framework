@@ -19,8 +19,15 @@ class User {
   }
 }
 
-@Route('/signups/')
+@Controller('/signups/')
 class SignupsController extends ArrowController {
+  @Route.get('/check_status')
+  void checkSignupStatus(@Param('id') int id) {
+    json({
+      'status': 'good',
+    });
+  }
+
  @Route.post('/email/')
   void emailSignup(@Body('email') String email, @Body('password') String password) {
    final user = User(1, email, '1234');

@@ -6,10 +6,10 @@ List<_ArrowRoute> generateArrowRoutes(List<ClassMirror> controllers) {
   for (var mirror in controllers) {
     var basePath = '';
 
-    var routeMetadata = mirror.metadata.firstWhere((meta) => meta.reflectee is Route, orElse: () => null);
+    var routeMetadata = mirror.metadata.firstWhere((meta) => meta.reflectee is Controller, orElse: () => null);
 
     if (routeMetadata != null) {
-      var basePathMirror = routeMetadata.getField(Symbol('path'));
+      var basePathMirror = routeMetadata.getField(Symbol('basePath'));
       basePath = basePathMirror.reflectee;
     }
 

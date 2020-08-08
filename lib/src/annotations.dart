@@ -28,3 +28,16 @@ class Body {
   final bool required;
 }
 
+class Controller {
+  const Controller(this.basePath);
+
+  final String basePath;
+}
+
+class Param {
+  const Param(this.paramName, { this.required = true });
+
+  final String paramName;
+  final bool required;
+}
+

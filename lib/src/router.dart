@@ -38,51 +38,70 @@ class _Router {
     var jsonBody = await parseBodyAsJson(request);
 
     for (var param in match.route.methodMirror.parameters) {
-      var body = param.metadata.firstWhere((el) => el.reflectee is Body, orElse: () => null);
-      if (body == null) {
-        continue;
+      var paramMetadata = param.metadata.firstWhere((el) =>
+      el.reflectee is Body || el.reflectee is Param, orElse: () => null);
+
+      if (paramMetadata == null) {
+        throw Exception('You must use the Body() or Param() annotations for controller method params');
       }
 
-      var bodyParamNameMirror = body.getField(Symbol('paramName'));
-      var bodyParamRequiredMirror = body.getField(Symbol('required'));
-      final bodyParamIsRequired = bodyParamRequiredMirror.reflectee as bool;
-
-
-      if (jsonBody == null || bodyParamIsRequired && !jsonBody.containsKey(bodyParamNameMirror.reflectee)) {
-        request.response.statusCode = HttpStatus.badRequest;
-        request.response.write('${bodyParamNameMirror.reflectee} body param is required.');
-        await request.response.close();
-        return;
-      }
-
-      var paramValue = jsonBody[bodyParamNameMirror.reflectee];
       var paramType = param.type.reflectedType;
 
-      if (paramValue == null && bodyParamIsRequired) {
-        request.response.statusCode = HttpStatus.badRequest;
-        request.response.write('${bodyParamNameMirror.reflectee} body param is required.');
-        await request.response.close();
-        return;
-      }
+      if (paramMetadata.reflectee is Body) {
+        var body = paramMetadata;
+        if (body == null) {
+          continue;
+        }
 
-      print('bodyParamName: ${bodyParamNameMirror.reflectee}');
-      print('paramType: ${paramType}');
+        var bodyParamNameMirror = body.getField(Symbol('paramName'));
+        var bodyParamRequiredMirror = body.getField(Symbol('required'));
+        final bodyParamIsRequired = bodyParamRequiredMirror.reflectee as bool;
 
-      // TODO: Check types before trying to parse and throw helpful error message
-      // TODO: Add custom type building using constructors with named params
+        if (jsonBody == null || bodyParamIsRequired &&
+            !jsonBody.containsKey(bodyParamNameMirror.reflectee)) {
+          request.response.statusCode = HttpStatus.badRequest;
+          request.response.write(
+              '${bodyParamNameMirror.reflectee} body param is required.');
+          await request.response.close();
+          return;
+        }
 
-      switch (paramType) {
-        case String:
-          params.add(paramValue.toString());
-          break;
-        case int:
-          params.add(int.parse(paramValue));
-          break;
-        case double:
-          params.add(double.parse(paramValue));
-          break;
-        default:
-          params.add(paramValue);
+        var paramValue = jsonBody[bodyParamNameMirror.reflectee];
+        var paramType = param.type.reflectedType;
+
+        if (paramValue == null && bodyParamIsRequired) {
+          request.response.statusCode = HttpStatus.badRequest;
+          request.response.write(
+              '${bodyParamNameMirror.reflectee} body param is required.');
+          await request.response.close();
+          return;
+        }
+
+        _addParam(params, paramType, paramValue);
+      } else if (paramMetadata.reflectee is Param) {
+        var queryParamNameMirror = paramMetadata.getField(Symbol('paramName'));
+        var queryParamRequiredMirror = paramMetadata.getField(Symbol('required'));
+        final queryParamIsRequired = queryParamRequiredMirror.reflectee as bool;
+
+        if (queryParamIsRequired && !request.uri.queryParameters.containsKey(queryParamNameMirror.reflectee)) {
+          request.response.statusCode = HttpStatus.badRequest;
+          request.response.write(
+              '${queryParamNameMirror.reflectee} query param is required.');
+          await request.response.close();
+          return;
+        }
+
+        var queryParamValue = request.uri.queryParameters[queryParamNameMirror.reflectee];
+
+        if (queryParamIsRequired && queryParamValue == null) {
+          request.response.statusCode = HttpStatus.badRequest;
+          request.response.write(
+              '${queryParamNameMirror.reflectee} query param is required.');
+          await request.response.close();
+          return;
+        }
+
+        _addParam(params, paramType, queryParamValue);
       }
     }
 
@@ -96,7 +115,26 @@ class _Router {
     );
   }
 
-Future<Map<String, dynamic>> parseBodyAsJson(HttpRequest request) async {
+  void _addParam(List<dynamic> params, dynamic paramType, dynamic paramValue) {
+    // TODO: Check types before trying to parse and throw helpful error message
+    // TODO: Add custom type building using constructors with named params
+
+    switch (paramType) {
+      case String:
+        params.add(paramValue.toString());
+        break;
+      case int:
+        params.add(int.parse(paramValue));
+        break;
+      case double:
+        params.add(double.parse(paramValue));
+        break;
+      default:
+        params.add(paramValue);
+    }
+  }
+
+  Future<Map<String, dynamic>> parseBodyAsJson(HttpRequest request) async {
     var contentType = request.headers.contentType;
 
     try {
