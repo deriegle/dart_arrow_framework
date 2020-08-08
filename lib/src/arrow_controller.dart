@@ -12,7 +12,8 @@ class ArrowController {
     response.close();
   }
 
-  void call(HttpRequest request, Function handler, [List<dynamic> params = const []]) {
+  void call(HttpRequest request, Function handler,
+      [List<dynamic> params = const []]) {
     _request = request;
 
     Function.apply(

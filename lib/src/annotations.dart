@@ -1,15 +1,13 @@
 part of arrow_framework;
 
-const GET ='GET';
+const GET = 'GET';
 const POST = 'POST';
 const DELETE = 'DELETE';
 const PUT = 'PUT';
 const ALL_METHODS = [GET, POST, DELETE, PUT];
 
 class Route {
-  const Route(this.path, {
-    this.method = 'GET'
-  });
+  const Route(this.path, {this.method = 'GET'});
 
   const Route.post(this.path) : method = 'POST';
   const Route.get(this.path) : method = 'GET';
@@ -22,7 +20,7 @@ class Route {
 }
 
 class Body {
-  const Body(this.paramName, {  this.required = true });
+  const Body(this.paramName, {this.required = true});
 
   final String paramName;
   final bool required;
@@ -35,9 +33,8 @@ class Controller {
 }
 
 class Param {
-  const Param(this.paramName, { this.required = true });
+  const Param(this.paramName, {this.required = true});
 
   final String paramName;
   final bool required;
 }
-

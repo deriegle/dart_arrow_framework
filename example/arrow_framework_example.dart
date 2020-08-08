@@ -1,15 +1,28 @@
 library arrow_framework_example;
 
+import 'package:meta/meta.dart';
 import 'package:arrow_framework/arrow_framework.dart';
 
 void main() => serve();
 
 class User {
-  User(this.id, this.email, this._password);
+  User({
+    @required this.id,
+    @required this.email,
+    @required this.password,
+  });
 
   final int id;
   final String email;
-  final String _password;
+  final String password;
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      id: json['id'],
+      email: json['email'],
+      password: json['password'],
+    );
+  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -28,9 +41,13 @@ class SignupsController extends ArrowController {
     });
   }
 
- @Route.post('/email/')
-  void emailSignup(@Body('email') String email, @Body('password') String password) {
-   final user = User(1, email, '1234');
+  @Route.post('/email/')
+  void emailSignup(
+      @Body('email') String email, @Body('password') String password) {
+    print('password, $password');
+    print(password is String);
+    print(password is List);
+    final user = User(id: 1, email: email, password: password);
 
     json({
       'user': user,
@@ -39,11 +56,9 @@ class SignupsController extends ArrowController {
 
   @Route.post('/facebook/')
   void facebookSignup(
-      @Body('facebookUserId') userId,
-      @Body('facebookAuthToken') authToken,
+    @Body('facebookUserId') userId,
+    @Body('facebookAuthToken') authToken,
   ) {
-
-   json({ 'success': true });
+    json({'success': true});
   }
 }
-

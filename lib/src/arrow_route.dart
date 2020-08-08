@@ -1,6 +1,6 @@
 part of arrow_framework;
 
-class _ArrowRoute {
+class ArrowRoute {
   String controllerRoute;
   String methodRoute;
   List<String> methods;
@@ -9,7 +9,7 @@ class _ArrowRoute {
   ClassMirror classMirror;
   MethodMirror methodMirror;
 
-  _ArrowRoute({
+  ArrowRoute({
     @required this.methodRoute,
     @required this.methods,
     this.preMiddleware = const [],
@@ -19,11 +19,9 @@ class _ArrowRoute {
     this.controllerRoute = '',
   });
 
-  bool match(HttpRequest request) {
-    print('methods: $methods');
-    print('requestMethod: ${request.method}');
-    if (methods.isEmpty || methods.contains(request.method)) {
-      return request.uri.path == route;
+  bool match(Uri uri, String method) {
+    if (methods.isEmpty || methods.contains(method)) {
+      return uri.path == route;
     }
 
     return false;
@@ -41,16 +39,16 @@ class _ArrowRoute {
   String toString() {
     return '[${methods.join(',')}] $route';
   }
-  
+
   String _stripSlashes(String route) {
     if (route.startsWith('/')) {
       route = route.substring(1);
     }
-    
+
     if (route.endsWith('/')) {
       route = route.substring(0, route.length - 1);
     }
-    
+
     return route;
   }
 }
@@ -58,5 +56,3 @@ class _ArrowRoute {
 String realname(DeclarationMirror mirror) {
   return mirror.simpleName.toString().split('"')[1];
 }
-
-

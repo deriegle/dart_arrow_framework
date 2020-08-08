@@ -1,10 +1,10 @@
 part of arrow_framework;
 
 List<ClassMirror> scanControllers() {
-  var mirrorSystem = currentMirrorSystem();
-  var controllers = <ClassMirror>[];
-  var declarations = mirrorSystem.isolate.rootLibrary.declarations;
-  var ArrowControllerMirror = reflectClass(ArrowController);
+  final mirrorSystem = currentMirrorSystem();
+  final controllers = <ClassMirror>[];
+  final declarations = mirrorSystem.isolate.rootLibrary.declarations;
+  final ArrowControllerMirror = reflectClass(ArrowController);
 
   for (var mirror in declarations.values) {
     if (mirror is ClassMirror) {
