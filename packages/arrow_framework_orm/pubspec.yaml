@@ -1,13 +1,15 @@
 name: arrow_framework_orm
-description: A friendly ORM for Arrow Framework
 version: 1.0.0
 homepage: https://www.github.com/deriegle/dart_arrow_framework
+description: A friendly ORM for Arrow Framework
 
-environment:
+environment: 
   sdk: '>=2.8.1 <3.0.0'
 
-dependencies:
-
-dev_dependencies:
+dev_dependencies: 
   pedantic: ^1.9.0
   test: ^1.14.4
+
+dependency_overrides: 
+  arrow_framework: 
+    path: ../arrow_framework

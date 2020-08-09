@@ -6,6 +6,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:meta/meta.dart';
 import 'package:path_to_regexp/path_to_regexp.dart';
+import 'package:arrow_framework_orm/arrow_framework_orm.dart';
 
 part 'src/serve.dart';
 part 'src/annotations.dart';
