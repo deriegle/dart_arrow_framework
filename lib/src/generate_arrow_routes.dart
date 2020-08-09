@@ -71,10 +71,14 @@ void _validateHandlerParameters(String httpMethod, MethodMirror handlerMirror) {
     );
 
     if (bodyParameter != null) {
-      throw RouteMethodDoesNotSupportBodyError(
-        handlerMirror,
-        bodyParameter,
-      );
+      final Body body = bodyParameter.metadata.first.reflectee;
+
+      if (body.required) {
+        throw RouteMethodDoesNotSupportBodyError(
+          handlerMirror,
+          bodyParameter,
+        );
+      }
     }
   }
 }

@@ -34,6 +34,15 @@ class MockController extends ArrowController {
       'hello': true,
     });
   }
+
+  // Does not throw with optional Body() parameter on Route.all handlers
+  @Route.all('transactions')
+  void mockTransactions(@Body.optional('transactionId') String transactionId) {
+    this.json({
+      'success': true,
+      'transactionId': transactionId,
+    });
+  }
 }
 
 @Controller('/api/v1')
@@ -165,7 +174,7 @@ void main() {
     });
 
     test('has expected number of routes', () {
-      expect(routes.length, 3);
+      expect(routes.length, 4);
     });
 
     test('has expected routes', () {
