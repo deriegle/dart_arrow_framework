@@ -20,4 +20,13 @@ class SignupsController extends ArrowController {
   void facebookSignup(@Body() FacebookUser user) {
     json({'user': user});
   }
+
+  @Route.get('/facebook/users/:userId')
+  void getFacebookUser(@Param('userId') String userId) {
+    print('Found User ID: $userId');
+
+    json({
+      'userId': userId,
+    });
+  }
 }

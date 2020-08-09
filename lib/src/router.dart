@@ -43,6 +43,7 @@ class Router {
     final handler = controller.getField(match.route.methodMirror.simpleName);
     final params = <dynamic>[];
     final jsonBody = await _parseBodyAsJson(request);
+    final routeParameters = match.route.extractParameters(request.uri.path);
 
     for (final param in match.route.methodMirror.parameters) {
       final paramMetadata = param.metadata.firstWhere(
@@ -52,8 +53,7 @@ class Router {
 
       if (paramMetadata == null) {
         throw Exception(
-          'You must use the Body() or Param() annotations for controller method params',
-        );
+            'You must use the Body() or Param() annotations for controller method params');
       }
 
       final paramType = param.type.reflectedType;
@@ -97,16 +97,20 @@ class Router {
             paramMetadata.getField(#paramName).reflectee as String;
         final queryParamIsRequired =
             paramMetadata.getField(#required).reflectee as bool;
+        final allParameters = {
+          ...request.uri.queryParameters,
+          ...routeParameters,
+        };
 
         if (queryParamIsRequired &&
-            !request.uri.queryParameters.containsKey(queryParamName)) {
+            !allParameters.containsKey(queryParamName)) {
           request.response.statusCode = HttpStatus.badRequest;
           request.response.write('${queryParamName} query param is required.');
           await request.response.close();
           return;
         }
 
-        var queryParamValue = request.uri.queryParameters[queryParamName];
+        var queryParamValue = allParameters[queryParamName];
 
         if (queryParamIsRequired && queryParamValue == null) {
           request.response.statusCode = HttpStatus.badRequest;
