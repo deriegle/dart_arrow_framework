@@ -23,6 +23,18 @@ class MockController extends ArrowController {
   }
 }
 
+@Controller('/api/v1')
+class MockInvalidBodyParameterController extends ArrowController {
+  @Route.get('signup')
+  void mockGet(@Body('email') email, @Body('password') password) {}
+}
+
+@Controller('/api/v1')
+class MockInvalidParameterWithoutAnnotationController extends ArrowController {
+  @Route.post('users')
+  void mockPost(String name) {}
+}
+
 Future<void> expectJson(MockHttpResponse res, dynamic expected) async {
   String actualBody;
   dynamic actualJson;
@@ -41,24 +53,24 @@ Future<void> expectJson(MockHttpResponse res, dynamic expected) async {
 }
 
 void main() {
-  group('ArrowFramework', () {
-    ArrowFramework framework;
+  // group('ArrowFramework', () {
+  //   ArrowFramework framework;
 
-    setUp(() {
-      final router = Router();
-      framework = ArrowFramework(
-        autoInit: false,
-        router: router,
-      );
-    });
+  //   setUp(() {
+  //     final router = Router();
+  //     framework = ArrowFramework(
+  //       autoInit: false,
+  //       router: router,
+  //     );
+  //   });
 
-    test('works', () async {
-      // final request = MockHttpRequest('GET', Uri.parse('/api/v1/balloons'));
-      // await request.close();
-      // await framework.handleRequest(request);
-      // await expectJson(request.response, {});
-    });
-  });
+  //   test('works', () async {
+  //     final request = MockHttpRequest('GET', Uri.parse('/api/v1/balloons'));
+  //     await request.close();
+  //     await framework.handleRequest(request);
+  //     await expectJson(request.response, {});
+  //   });
+  // });
 
   group('generateArrowRoutes', () {
     List<ClassMirror> controllers;
@@ -108,6 +120,62 @@ void main() {
 
       ALL_METHODS.forEach((method) {
         expect(routes[2].match(uri, method), true);
+      });
+    });
+
+    group('when given invalid controllers', () {
+      ClassMirror controller;
+
+      group('GET handler with a Body() parameter', () {
+        setUp(() {
+          controller = reflectClass(MockInvalidBodyParameterController);
+          controllers = [];
+          controllers.add(controller);
+        });
+
+        test('throws RouteMethodDoesNotSupportBodyError', () {
+          expect(
+            () => generateArrowRoutes(controllers),
+            throwsA(predicate((e) => e is RouteMethodDoesNotSupportBodyError)),
+          );
+        });
+
+        test('throws helpful error message', () {
+          expect(() => generateArrowRoutes(controllers), throwsA(predicate((e) {
+            final errorMessage =
+                'MockInvalidBodyParameterController.mockGet has an invalid parameter: email. You cannot access Body() on a GET handler.';
+
+            return e is RouteMethodDoesNotSupportBodyError &&
+                e.message == errorMessage;
+          })));
+        });
+      });
+
+      group('Handler with no annotations on parameters', () {
+        setUp(() {
+          controller =
+              reflectClass(MockInvalidParameterWithoutAnnotationController);
+          controllers = [];
+          controllers.add(controller);
+        });
+
+        test('throws ParameterMustHaveAnnotationError', () {
+          expect(
+            () => generateArrowRoutes(controllers),
+            throwsA(predicate((e) => e is ParameterMustHaveAnnotationError)),
+          );
+        });
+
+        test('throws helpful error message', () {
+          expect(() => generateArrowRoutes(controllers), throwsA(predicate((e) {
+            print(e.message);
+            final errorMessage =
+                'MockInvalidParameterWithoutAnnotationController.mockPost has an invalid parameter: name. You must use a Body() or Param() annotation around each argument.';
+
+            return e is ParameterMustHaveAnnotationError &&
+                e.message == errorMessage;
+          })));
+        });
       });
     });
   });

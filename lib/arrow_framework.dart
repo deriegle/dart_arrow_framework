@@ -16,3 +16,5 @@ part 'src/generate_arrow_routes.dart';
 part 'src/arrow_framework_base.dart';
 part 'src/route_match.dart';
 part 'src/body_parser.dart';
+part 'src/errors/parameter_must_have_annotation_error.dart';
+part 'src/errors/route_method_does_not_support_body_error.dart';
