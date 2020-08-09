@@ -176,7 +176,6 @@ void main() {
 
         test('throws helpful error message', () {
           expect(() => generateArrowRoutes(controllers), throwsA(predicate((e) {
-            print(e.message);
             final errorMessage =
                 'MockInvalidParameterWithoutAnnotationController.mockPost has an invalid parameter: name. You must use a Body() or Param() annotation around each argument.';
 
