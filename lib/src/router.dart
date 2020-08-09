@@ -9,6 +9,12 @@ class Router {
     routes.addAll(generateArrowRoutes(controllers));
   }
 
+  factory Router.withControllers(List<ClassMirror> controllers) {
+    final r = Router();
+    r.routes.addAll(generateArrowRoutes(controllers));
+    return r;
+  }
+
   /// Checks if there is a route defined that matches the incoming HTTP request
   ///
   /// @param HttpRequest request
@@ -87,7 +93,8 @@ class Router {
 
         // Using Param annotation
       } else if (paramMetadata.reflectee is Param) {
-        final queryParamName = paramMetadata.getField(#paramName) as String;
+        final queryParamName =
+            paramMetadata.getField(#paramName).reflectee as String;
         final queryParamIsRequired =
             paramMetadata.getField(#required).reflectee as bool;
 

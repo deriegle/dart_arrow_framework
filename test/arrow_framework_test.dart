@@ -4,15 +4,28 @@ import 'dart:mirrors';
 import 'package:arrow_framework/arrow_framework.dart';
 import 'package:mock_request/mock_request.dart';
 import 'package:test/test.dart';
-import './support/wait_for.dart';
 
 @Controller('/api/v1/')
 class MockController extends ArrowController {
   @Route.post('signups')
-  void mockPost() {}
+  void mockPost(@Body('email') email, @Body('password') password) {
+    this.json({
+      'user': {
+        'id': 123,
+        'email': email,
+      }
+    });
+  }
 
   @Route.get('users')
-  void mockGet() {}
+  void mockGet(@Param('id') String id, @Param.optional('email') email) {
+    this.json({
+      'success': true,
+      'user': {
+        'id': id,
+      },
+    });
+  }
 
   @Route.all('balloons')
   void mockBalloons() {
@@ -26,7 +39,14 @@ class MockController extends ArrowController {
 @Controller('/api/v1')
 class MockInvalidBodyParameterController extends ArrowController {
   @Route.get('signup')
-  void mockGet(@Body('email') email, @Body('password') password) {}
+  void mockGet(@Body('email') email, @Body('password') password) {
+    this.json({
+      'user': {
+        'email': email,
+        'password': password,
+      }
+    });
+  }
 }
 
 @Controller('/api/v1')
@@ -36,41 +56,105 @@ class MockInvalidParameterWithoutAnnotationController extends ArrowController {
 }
 
 Future<void> expectJson(MockHttpResponse res, dynamic expected) async {
-  String actualBody;
   dynamic actualJson;
 
-  await waitFor(() async {
-    actualBody = await res.transform(utf8.decoder).join();
-    expect(res.headers.contentType, ContentType.json);
-    if (actualBody.isEmpty) {
-      return false;
-    }
+  await res.done;
 
-    actualJson = jsonDecode(actualBody);
-  });
+  expect(
+    res.headers.contentType?.mimeType,
+    ContentType.json.mimeType,
+    reason: 'Return type was not JSON',
+  );
+
+  final actualBody = await res.transform(utf8.decoder).join();
+
+  expect(actualBody, isNotEmpty);
+
+  actualJson = jsonDecode(actualBody);
 
   expect(actualJson, expected);
 }
 
+Future<void> expectText(MockHttpResponse res, String expected) async {
+  await res.done;
+
+  final actualBody = await res.transform(utf8.decoder).join();
+
+  expect(actualBody, expected);
+}
+
 void main() {
-  // group('ArrowFramework', () {
-  //   ArrowFramework framework;
+  group('ArrowFramework', () {
+    ArrowFramework framework;
 
-  //   setUp(() {
-  //     final router = Router();
-  //     framework = ArrowFramework(
-  //       autoInit: false,
-  //       router: router,
-  //     );
-  //   });
+    setUp(() {
+      final router = Router.withControllers([
+        reflectClass(MockController),
+      ]);
 
-  //   test('works', () async {
-  //     final request = MockHttpRequest('GET', Uri.parse('/api/v1/balloons'));
-  //     await request.close();
-  //     await framework.handleRequest(request);
-  //     await expectJson(request.response, {});
-  //   });
-  // });
+      framework = ArrowFramework(
+        autoInit: false,
+        router: router,
+      );
+    });
+
+    test('GET request to Route.all handler', () async {
+      final request = MockHttpRequest(GET, Uri.parse('/api/v1/balloons'));
+      await request.close();
+      await framework.handleRequest(request);
+      await expectJson(request.response, {
+        'hello': true,
+      });
+    });
+
+    test('POST request to Route.post handler', () async {
+      final request = MockHttpRequest(
+        POST,
+        Uri.parse('/api/v1/signups'),
+      );
+
+      request.headers.contentType = ContentType.json;
+      request.write(
+        jsonEncode({'email': 'test@example.com', 'password': 'password'}),
+      );
+
+      await request.close();
+      await framework.handleRequest(request);
+      await expectJson(request.response, {
+        'user': {
+          'id': 123,
+          'email': 'test@example.com',
+        }
+      });
+    });
+
+    test('GET request to Route.get handler without optional params', () async {
+      final request = MockHttpRequest(
+        GET,
+        Uri.parse('/api/v1/users?id=12345678910'),
+      );
+
+      await request.close();
+      await framework.handleRequest(request);
+      await expectJson(request.response, {
+        'success': true,
+        'user': {
+          'id': '12345678910',
+        }
+      });
+    });
+
+    test('GET request to Route.get handler without required params', () async {
+      final request = MockHttpRequest(
+        GET,
+        Uri.parse('/api/v1/users'),
+      );
+
+      await request.close();
+      await framework.handleRequest(request);
+      await expectText(request.response, 'id query param is required.');
+    });
+  });
 
   group('generateArrowRoutes', () {
     List<ClassMirror> controllers;
