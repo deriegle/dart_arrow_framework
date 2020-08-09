@@ -21,10 +21,17 @@ class ArrowRoute {
 
   bool match(Uri uri, String method) {
     if (methods.isEmpty || methods.contains(method)) {
-      return uri.path == route;
+      return _regExp().matchAsPrefix(uri.path) != null;
     }
 
     return false;
+  }
+
+  Map<String, String> extractParameters(String path) {
+    final parameters = <String>[];
+    final match = _regExp(parameters).matchAsPrefix(path);
+
+    return extract(parameters, match);
   }
 
   String get route {
@@ -39,6 +46,9 @@ class ArrowRoute {
   String toString() {
     return '[${methods.join(',')}] $route';
   }
+
+  RegExp _regExp([List<String> parameters]) =>
+      pathToRegExp(route, parameters: parameters ?? []);
 
   String _stripSlashes(String route) {
     if (route.startsWith('/')) {

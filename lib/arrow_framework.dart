@@ -5,6 +5,7 @@ import 'dart:mirrors';
 import 'dart:io';
 import 'dart:convert';
 import 'package:meta/meta.dart';
+import 'package:path_to_regexp/path_to_regexp.dart';
 
 part 'src/serve.dart';
 part 'src/annotations.dart';

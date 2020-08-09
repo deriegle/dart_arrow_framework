@@ -1,7 +1,7 @@
 name: arrow_framework
 description: A friendly API framework for Dart
 version: 1.0.0
-# homepage: https://www.example.com
+homepage: https://www.github.com/deriegle/dart_arrow_framework
 
 environment:
   sdk: '>=2.8.1 <3.0.0'
@@ -9,6 +9,7 @@ environment:
 dependencies:
   body_parser: ^1.1.1
   http_parser: ^3.1.4
+  path_to_regexp: ^0.3.0
 
 dev_dependencies:
   pedantic: ^1.9.0
