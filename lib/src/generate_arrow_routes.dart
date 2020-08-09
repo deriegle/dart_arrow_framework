@@ -64,7 +64,7 @@ void _validateHandlerParameters(String httpMethod, MethodMirror handlerMirror) {
     );
   }
 
-  if (httpMethod == GET) {
+  if (httpMethod == GET || httpMethod == null) {
     final bodyParameter = handlerMirror.parameters.firstWhere(
       (p) => p.metadata.first.reflectee is Body,
       orElse: () => null,

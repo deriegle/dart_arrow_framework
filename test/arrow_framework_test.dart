@@ -39,20 +39,18 @@ class MockController extends ArrowController {
 @Controller('/api/v1')
 class MockInvalidBodyParameterController extends ArrowController {
   @Route.get('signup')
-  void mockGet(@Body('email') email, @Body('password') password) {
-    this.json({
-      'user': {
-        'email': email,
-        'password': password,
-      }
-    });
-  }
+  void mockGet(@Body('email') email, @Body('password') password) {}
 }
 
 @Controller('/api/v1')
 class MockInvalidParameterWithoutAnnotationController extends ArrowController {
   @Route.post('users')
   void mockPost(String name) {}
+}
+
+class MockInvalidBodyOnRouteAllHandlerController extends ArrowController {
+  @Route.all('signup')
+  void mockAll(@Body('email') email) {}
 }
 
 Future<void> expectJson(MockHttpResponse res, dynamic expected) async {
@@ -257,6 +255,31 @@ void main() {
                 'MockInvalidParameterWithoutAnnotationController.mockPost has an invalid parameter: name. You must use a Body() or Param() annotation around each argument.';
 
             return e is ParameterMustHaveAnnotationError &&
+                e.message == errorMessage;
+          })));
+        });
+      });
+
+      group('Route.all handler with a Body() parameter', () {
+        setUp(() {
+          controller = reflectClass(MockInvalidBodyOnRouteAllHandlerController);
+          controllers = [];
+          controllers.add(controller);
+        });
+
+        test('throws RouteMethodDoesNotSupportBodyError', () {
+          expect(
+            () => generateArrowRoutes(controllers),
+            throwsA(predicate((e) => e is RouteMethodDoesNotSupportBodyError)),
+          );
+        });
+
+        test('throws helpful error message', () {
+          expect(() => generateArrowRoutes(controllers), throwsA(predicate((e) {
+            final errorMessage =
+                'MockInvalidBodyOnRouteAllHandlerController.mockAll has an invalid parameter: email. You cannot access Body() on a GET handler.';
+
+            return e is RouteMethodDoesNotSupportBodyError &&
                 e.message == errorMessage;
           })));
         });
