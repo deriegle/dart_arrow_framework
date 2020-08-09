@@ -1,85 +1,9 @@
-import 'dart:convert';
-import 'dart:io';
+import 'package:test/test.dart';
 import 'dart:mirrors';
 import 'package:arrow_framework/arrow_framework.dart';
-import 'package:mock_request/mock_request.dart';
-import 'package:test/test.dart';
-import './support/expectations.dart';
 import './support/mock_controllers.dart';
 
 void main() {
-  group('ArrowFramework', () {
-    ArrowFramework framework;
-
-    setUp(() {
-      final router = Router.withControllers([
-        reflectClass(MockController),
-      ]);
-
-      framework = ArrowFramework(
-        autoInit: false,
-        router: router,
-      );
-    });
-
-    test('GET request to Route.all handler', () async {
-      final request = MockHttpRequest(GET, Uri.parse('/api/v1/balloons'));
-      await request.close();
-      await framework.handleRequest(request);
-      await expectJson(request.response, {
-        'hello': true,
-      });
-    });
-
-    test('POST request to Route.post handler', () async {
-      final request = MockHttpRequest(
-        POST,
-        Uri.parse('/api/v1/signups'),
-      );
-
-      request.headers.contentType = ContentType.json;
-      request.write(
-        jsonEncode({'email': 'test@example.com', 'password': 'password'}),
-      );
-
-      await request.close();
-      await framework.handleRequest(request);
-      await expectJson(request.response, {
-        'user': {
-          'id': 123,
-          'email': 'test@example.com',
-        }
-      });
-    });
-
-    test('GET request to Route.get handler without optional params', () async {
-      final request = MockHttpRequest(
-        GET,
-        Uri.parse('/api/v1/users?id=12345678910'),
-      );
-
-      await request.close();
-      await framework.handleRequest(request);
-      await expectJson(request.response, {
-        'success': true,
-        'user': {
-          'id': '12345678910',
-        }
-      });
-    });
-
-    test('GET request to Route.get handler without required params', () async {
-      final request = MockHttpRequest(
-        GET,
-        Uri.parse('/api/v1/users'),
-      );
-
-      await request.close();
-      await framework.handleRequest(request);
-      await expectText(request.response, 'id query param is required.');
-    });
-  });
-
   group('generateArrowRoutes', () {
     List<ClassMirror> controllers;
     List<ArrowRoute> routes;
