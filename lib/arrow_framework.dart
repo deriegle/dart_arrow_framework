@@ -14,3 +14,5 @@ part 'src/scan_controllers.dart';
 part 'src/arrow_route.dart';
 part 'src/generate_arrow_routes.dart';
 part 'src/arrow_framework_base.dart';
+part 'src/route_match.dart';
+part 'src/body_parser.dart';

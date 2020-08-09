@@ -4,7 +4,10 @@ class ArrowController {
   HttpRequest _request;
 
   HttpRequest get request => _request;
+  HttpRequest get req => request;
+
   HttpResponse get response => request.response;
+  HttpResponse get res => response;
 
   void json(Map<String, dynamic> json) {
     response.headers.contentType = ContentType.json;

@@ -1,7 +1,7 @@
 part of arrow_framework;
 
-const defaultAddress = '0.0.0.0';
-const defaultPort = 8080;
+const _defaultAddress = '0.0.0.0';
+const _defaultPort = 8080;
 
 class ArrowFramework {
   final Router _router;
@@ -11,8 +11,8 @@ class ArrowFramework {
 
   ArrowFramework({
     bool autoInit = true,
-    String address = defaultAddress,
-    int port = defaultPort,
+    String address = _defaultAddress,
+    int port = _defaultPort,
     Router router,
   })  : _address = address,
         _port = port,
@@ -22,6 +22,9 @@ class ArrowFramework {
     }
   }
 
+  /// Binds the HTTP Server to desired address/port
+  ///
+  /// Listens for requests and forwards to the router for matching
   ArrowFramework init() {
     runZoned(() {
       HttpServer.bind(_address, _port).then((server) {
@@ -41,17 +44,19 @@ class ArrowFramework {
     _subscription?.cancel();
   }
 
+  /// Handles incoming HTTP requests
+  ///
+  /// Asks router for matching routes or returns 404
   Future<void> handleRequest(HttpRequest request) async {
-    print(request);
-
     final match = _router.matchRequest(request);
-
-    print(match);
-    print(match.matched);
 
     if (match.matched) {
       await _router.serve(request, match);
     } else {
+      // No route found for request
+      // Status Code: 404
+      // TODO: Add ability to customize 404 page/result
+
       request.response.statusCode = HttpStatus.notFound;
       await request.response.close();
     }

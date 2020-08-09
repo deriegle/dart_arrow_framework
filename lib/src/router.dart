@@ -1,24 +1,19 @@
 part of arrow_framework;
 
-class RouteMatch {
-  RouteMatch([this.matched = false, this.route]);
-
-  ArrowRoute route;
-  bool matched;
-}
-
 class Router {
   List<ArrowRoute> routes = [];
 
   Router() {
     final controllers = scanControllers();
 
-    // print('controllers');
-    // print(controllers);
-
     routes.addAll(generateArrowRoutes(controllers));
   }
 
+  /// Checks if there is a route defined that matches the incoming HTTP request
+  ///
+  /// @param HttpRequest request
+  ///
+  /// returns [RouteMatch]
   RouteMatch matchRequest(HttpRequest request) {
     var match = RouteMatch(false);
 
@@ -32,13 +27,18 @@ class Router {
     return match;
   }
 
+  /// Serves an HTTP request after it has been matched
+  ///
+  /// Looks through handler to find required parameters and builds them based
+  /// on the Body and Param annotations
+  ///
   Future<void> serve(HttpRequest request, RouteMatch match) async {
     final controller = match.route.classMirror.newInstance(Symbol(''), []);
     final handler = controller.getField(match.route.methodMirror.simpleName);
     final params = <dynamic>[];
-    final jsonBody = await parseBodyAsJson(request);
+    final jsonBody = await _parseBodyAsJson(request);
 
-    for (var param in match.route.methodMirror.parameters) {
+    for (final param in match.route.methodMirror.parameters) {
       final paramMetadata = param.metadata.firstWhere(
         (el) => el.reflectee is Body || el.reflectee is Param,
         orElse: () => null,
@@ -196,24 +196,6 @@ class Router {
         .reflectee;
 
     params.add(dynamicClass);
-  }
-
-  Future<Map<String, dynamic>> parseBodyAsJson(HttpRequest request) async {
-    var contentType = request.headers.contentType;
-
-    try {
-      if (request.method == 'POST' &&
-          contentType != null &&
-          contentType.mimeType == 'application/json') {
-        var content = await utf8.decoder.bind(request).join();
-
-        return jsonDecode(content) as Map<String, dynamic>;
-      }
-    } catch (e) {
-      print(e);
-    }
-
-    return null;
   }
 }
 
