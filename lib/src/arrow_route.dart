@@ -16,7 +16,7 @@ class ArrowRoute {
     this.postMiddleware = const [],
     this.classMirror,
     this.methodMirror,
-    this.controllerRoute = '',
+    this.controllerRoute = '/',
   });
 
   bool match(Uri uri, String method) {
@@ -29,7 +29,7 @@ class ArrowRoute {
 
   String get route {
     if (controllerRoute == null || controllerRoute.isEmpty) {
-      return methodRoute;
+      return '/${_stripSlashes(methodRoute)}';
     } else {
       return '/${_stripSlashes(controllerRoute)}/${_stripSlashes(methodRoute)}';
     }
