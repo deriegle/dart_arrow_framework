@@ -9,6 +9,12 @@ class ArrowController {
   HttpResponse get response => request.response;
   HttpResponse get res => response;
 
+  dynamic get cookies => request.cookies;
+
+  void setCookie({@required String name, @required String value}) {
+    res.cookies.add(Cookie(name, value));
+  }
+
   void json(Map<String, dynamic> json) {
     response.headers.contentType = ContentType.json;
     response.write(jsonEncode(json));
