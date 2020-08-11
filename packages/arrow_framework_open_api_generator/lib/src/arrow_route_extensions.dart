@@ -109,7 +109,16 @@ extension ArrowRouteToOpenApi on ArrowRoute {
             p.metadata
                 .firstWhere((m) => m.reflectee is Param, orElse: () => null) !=
             null)
-        .map<OpenApiParameter>((param) {
+        .where((p) {
+      final Param param =
+          p.metadata.firstWhere((m) => m.reflectee is Param).reflectee;
+
+      final pathParam = pathParameters.firstWhere(
+          (path) => path.name == param.paramName,
+          orElse: () => null);
+
+      return pathParam == null;
+    }).map<OpenApiParameter>((param) {
       final Param p =
           param.metadata.firstWhere((m) => m.reflectee is Param).reflectee;
       return OpenApiParameter(

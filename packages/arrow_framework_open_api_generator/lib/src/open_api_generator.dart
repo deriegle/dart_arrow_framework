@@ -48,6 +48,6 @@ class ArrowFrameworkOpenApiGenerator {
   Future saveToFile(String fileName) async {
     final file = _fileSystem.file(fileName);
     final encoder = JsonEncoder.withIndent('    ');
-    file.openWrite().write(encoder.convert(_builder));
+    file.openWrite().write(encoder.convert(_builder.toJson()));
   }
 }

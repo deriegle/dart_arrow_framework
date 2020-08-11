@@ -1,45 +1,26 @@
+import 'package:arrow_framework/arrow_framework.dart';
 import 'package:arrow_framework_open_api_generator/arrow_framework_open_api_generator.dart';
 
+@Controller('/api/v1')
+class MockController extends ArrowController {
+  @Route.get('users')
+  void getAllUsers() {}
+
+  @Route.get('users/:userId')
+  void getUser(@Param('userId') String userId) {}
+
+  @Route.post('users')
+  void createUser(
+    @Body('email') String email,
+    @Body('password') String password,
+  ) {}
+}
+
 void main() {
-  ArrowFrameworkOpenApiGenerator(routes: [
-    OpenApiRoute(route: '/api/v1/users', method: 'get', parameters: []),
-    OpenApiRoute(
-      route: '/api/v1/users/{userId}',
-      method: 'get',
-      parameters: [
-        OpenApiParameter(
-          name: 'userId',
-          type: String,
-          location: OpenApiParameterLocation.path,
-          isRequired: true,
-        ),
-      ],
-    ),
-    OpenApiRoute(
-      route: '/api/v1/users',
-      method: 'post',
-      parameters: [
-        OpenApiParameter(
-          name: 'email',
-          type: String,
-          location: OpenApiParameterLocation.body,
-          isRequired: true,
-        ),
-        OpenApiParameter(
-          name: 'password',
-          type: String,
-          location: OpenApiParameterLocation.body,
-          isRequired: true,
-        ),
-      ],
-    ),
-  ])
+  ArrowFrameworkOpenApiGenerator(routes: Router().routes)
       .addTitle('Basic Application')
-      .addDescription('Example Arrow Framework OpenAPi generate')
-      .addServer(
-        url: 'http://localhost:3000',
-        description: 'Local server',
-      )
+      .addDescription('Example Arrow Framework OpenAPI generate')
+      .addServer(url: 'http://localhost:3000', description: 'Local server')
       .saveToFile(
           './packages/arrow_framework_open_api_generator/example/api.json');
 }
