@@ -15,7 +15,7 @@ class ArrowFrameworkOpenApiGenerator {
         _builder.addRoutes([route]);
       } else {
         throw Exception(
-          'Routes must be instances of ArrowRoute or OpenApiRoute. Found ${route.runtimeType}',
+          'Routes must be instances of ArrowRoute or OpenApiRoute. Found "${route.runtimeType}".',
         );
       }
     });

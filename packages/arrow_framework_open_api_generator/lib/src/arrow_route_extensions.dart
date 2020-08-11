@@ -55,7 +55,7 @@ extension ArrowRouteToOpenApi on ArrowRoute {
       regExp(pathParameters);
 
       return OpenApiRoute(
-        route: route,
+        route: openApiRoute,
         method: method.toLowerCase(),
         parameters: [
           ...pathParameters.map<OpenApiParameter>((String pathParam) {
@@ -68,6 +68,12 @@ extension ArrowRouteToOpenApi on ArrowRoute {
           }),
         ],
       );
-    });
+    }).toList();
+  }
+
+  String get openApiRoute {
+    final reg = RegExp(':[A-Za-z1-9]+', caseSensitive: false);
+
+    return route.replaceAllMapped(reg, (m) => '{${m[0].substring(1)}}');
   }
 }
