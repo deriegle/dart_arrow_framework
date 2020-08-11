@@ -40,5 +40,6 @@ void main() {
         url: 'http://localhost:3000',
         description: 'Local server',
       )
-      .saveToFile('./api.json');
+      .saveToFile(
+          './packages/arrow_framework_open_api_generator/example/api.json');
 }

@@ -1,0 +1,75 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Basic Application",
+        "description": "Example Arrow Framework OpenAPi generate",
+        "version": null
+    },
+    "paths": {
+        "/api/v1/users": {
+            "get": {
+                "tags": [],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "parameters": []
+            },
+            "post": {
+                "tags": [],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "email",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "password",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ]
+            }
+        },
+        "/api/v1/users/{userId}": {
+            "get": {
+                "tags": [],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "components": {},
+    "tags": [],
+    "servers": [
+        {
+            "url": "http://localhost:3000",
+            "description": "Local server"
+        }
+    ]
+}
