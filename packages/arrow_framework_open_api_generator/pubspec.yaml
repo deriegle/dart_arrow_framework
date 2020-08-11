@@ -1,0 +1,21 @@
+name: arrow_framework_open_api_generator
+version: 1.0.0
+homepage: https://www.github.com/deriegle/dart_arrow_framework
+description: An Open API spec generator for Arrow Framework
+
+environments:
+  sdk: '>=2.8.1 <3.0.0'
+
+dependencies:
+  file: ^5.2.1
+  arrow_framework: ^1.0.0
+
+dev_dependencies:
+  pedantic: ^1.9.0
+  test: ^1.14.4
+
+dependency_overrides:
+  arrow_framework:
+    path: ../arrow_framework
+  arrow_framework_orm:
+    path: ../arrow_framework_orm

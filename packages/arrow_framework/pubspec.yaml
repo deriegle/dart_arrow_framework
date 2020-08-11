@@ -20,3 +20,5 @@ dev_dependencies:
 dependency_overrides: 
   arrow_framework_orm: 
     path: ../arrow_framework_orm
+  arrow_framework_open_api_generator: 
+    path: ../arrow_framework_open_api_generator
