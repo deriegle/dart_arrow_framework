@@ -21,6 +21,16 @@ class ArrowFrameworkOpenApiGenerator {
     });
   }
 
+  factory ArrowFrameworkOpenApiGenerator.fromFramework(
+    ArrowFramework framework, {
+    FileSystem fileSystem,
+  }) {
+    return ArrowFrameworkOpenApiGenerator(
+      routes: framework.router.routes,
+      fileSystem: fileSystem,
+    );
+  }
+
   ArrowFrameworkOpenApiGenerator addTitle(String newTitle) {
     _builder.title = newTitle;
     return this;

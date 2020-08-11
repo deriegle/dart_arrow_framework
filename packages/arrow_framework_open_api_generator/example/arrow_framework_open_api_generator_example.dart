@@ -17,8 +17,11 @@ class MockController extends ArrowController {
 }
 
 void main() {
-  ArrowFrameworkOpenApiGenerator(routes: Router().routes)
+  final framework = ArrowFramework(autoInit: false);
+
+  ArrowFrameworkOpenApiGenerator.fromFramework(framework)
       .addTitle('Basic Application')
+      .addVersion('1.0.0')
       .addDescription('Example Arrow Framework OpenAPI generate')
       .addServer(url: 'http://localhost:3000', description: 'Local server')
       .saveToFile(

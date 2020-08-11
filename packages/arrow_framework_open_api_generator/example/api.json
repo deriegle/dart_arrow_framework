@@ -2,8 +2,8 @@
     "openapi": "3.0.0",
     "info": {
         "title": "Basic Application",
-        "description": "Example Arrow Framework OpenAPi generate",
-        "version": null
+        "description": "Example Arrow Framework OpenAPI generate",
+        "version": "1.0.0"
     },
     "paths": {
         "/api/v1/users": {

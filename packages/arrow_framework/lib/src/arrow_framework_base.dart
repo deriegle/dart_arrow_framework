@@ -22,6 +22,8 @@ class ArrowFramework {
     }
   }
 
+  Router get router => _router;
+
   /// Binds the HTTP Server to desired address/port
   ///
   /// Listens for requests and forwards to the router for matching
