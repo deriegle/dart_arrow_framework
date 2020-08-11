@@ -1,3 +1,8 @@
-import 'package:arrow_framework_orm/arrow_framework_orm.dart';
+part of arrow_framework_orm_example;
 
-abstract class _User {}
+class User extends ArrowModel<User> {
+  @PrimaryKey()
+  String id;
+  String email;
+  String password;
+}
