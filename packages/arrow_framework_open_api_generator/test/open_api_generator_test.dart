@@ -61,8 +61,10 @@ void main() {
                 controllerRoute: '/api/v1',
                 methodRoute: 'users',
                 methods: ['post'],
-                methodMirror:
-                    reflectClass(MockController).instanceMembers.values.first),
+                methodMirror: reflectClass(MockController)
+                    .instanceMembers
+                    .values
+                    .firstWhere((m) => m.simpleName == #bodyMethodMirror)),
           ],
         )
             .addTitle('My Test Open API spec')
@@ -130,22 +132,22 @@ void main() {
             '200': {'description': ''},
           },
           'parameters': [
-            // {
-            //   'name': 'email',
-            //   'required': true,
-            //   'in': 'body',
-            //   'schema': {
-            //     'type': 'string',
-            //   }
-            // },
-            // {
-            //   'name': 'password',
-            //   'required': true,
-            //   'in': 'body',
-            //   'schema': {
-            //     'type': 'string',
-            //   }
-            // }
+            {
+              'name': 'email',
+              'required': true,
+              'in': 'body',
+              'schema': {
+                'type': 'string',
+              }
+            },
+            {
+              'name': 'password',
+              'required': true,
+              'in': 'body',
+              'schema': {
+                'type': 'string',
+              }
+            }
           ],
         });
         expect(userPath['get'], {

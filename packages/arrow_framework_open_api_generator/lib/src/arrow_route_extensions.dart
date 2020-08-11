@@ -51,22 +51,48 @@ class OpenApiParameter {
 extension ArrowRouteToOpenApi on ArrowRoute {
   List<OpenApiRoute> toOpenApi() {
     return methods.map<OpenApiRoute>((method) {
-      final pathParameters = <String>[];
-      regExp(pathParameters);
-
       return OpenApiRoute(
         route: openApiRoute,
         method: method.toLowerCase(),
-        parameters: [
-          ...pathParameters.map<OpenApiParameter>((String pathParam) {
-            return OpenApiParameter(
-              name: pathParam,
-              type: String,
-              location: OpenApiParameterLocation.path,
-              isRequired: true,
-            );
-          }),
-        ],
+        parameters: [...pathParameters, ...bodyParameters],
+      );
+    }).toList();
+  }
+
+  List<OpenApiParameter> get pathParameters {
+    final params = <String>[];
+    regExp(params);
+
+    return params.map<OpenApiParameter>((String pathParam) {
+      return OpenApiParameter(
+        name: pathParam,
+        type: String,
+        location: OpenApiParameterLocation.path,
+        isRequired: true,
+      );
+    }).toList();
+  }
+
+  List<OpenApiParameter> get bodyParameters {
+    final params = methodMirror?.parameters;
+
+    if (params == null) {
+      return [];
+    }
+
+    return params
+        .where((p) =>
+            p.metadata
+                .firstWhere((m) => m.reflectee is Body, orElse: () => null) !=
+            null)
+        .map<OpenApiParameter>((p) {
+      final Body body =
+          p.metadata.firstWhere((m) => m.reflectee is Body).reflectee;
+      return OpenApiParameter(
+        isRequired: body.required,
+        location: OpenApiParameterLocation.body,
+        name: body.paramName,
+        type: p.type.reflectedType,
       );
     }).toList();
   }
