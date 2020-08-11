@@ -11,9 +11,9 @@ import 'package:arrow_framework_open_api_generator/arrow_framework_open_api_gene
 class MockController {
   @Route.post('users')
   void bodyMethodMirror(
-    @Body('email') String email,
-    @Body('password') String password,
-  ) {}
+      @Body('email') String email,
+      @Body('password') String password,
+      @Param.optional('ad_id') String adId) {}
 }
 
 void main() {
@@ -144,6 +144,14 @@ void main() {
               'name': 'password',
               'required': true,
               'in': 'body',
+              'schema': {
+                'type': 'string',
+              }
+            },
+            {
+              'name': 'ad_id',
+              'required': false,
+              'in': 'query',
               'schema': {
                 'type': 'string',
               }

@@ -54,7 +54,7 @@ extension ArrowRouteToOpenApi on ArrowRoute {
       return OpenApiRoute(
         route: openApiRoute,
         method: method.toLowerCase(),
-        parameters: [...pathParameters, ...bodyParameters],
+        parameters: [...pathParameters, ...bodyParameters, ...queryParameters],
       );
     }).toList();
   }
@@ -93,6 +93,30 @@ extension ArrowRouteToOpenApi on ArrowRoute {
         location: OpenApiParameterLocation.body,
         name: body.paramName,
         type: p.type.reflectedType,
+      );
+    }).toList();
+  }
+
+  List<OpenApiParameter> get queryParameters {
+    final params = methodMirror?.parameters;
+
+    if (params == null) {
+      return [];
+    }
+
+    return params
+        .where((p) =>
+            p.metadata
+                .firstWhere((m) => m.reflectee is Param, orElse: () => null) !=
+            null)
+        .map<OpenApiParameter>((param) {
+      final Param p =
+          param.metadata.firstWhere((m) => m.reflectee is Param).reflectee;
+      return OpenApiParameter(
+        isRequired: p.required,
+        location: OpenApiParameterLocation.query,
+        name: p.paramName,
+        type: String,
       );
     }).toList();
   }
